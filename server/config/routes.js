@@ -5,12 +5,12 @@ module.exports = function(app){
 	app.post('/login', serverController.login);
 	app.get('/logout', serverController.logout);
 	app.get('/current', serverController.current);
-	app.get('/getOne', serverController.index);
 
-	app.get('/users', serverController.getUsers);
-	app.get('/events', serverController.getEvents);
-	app.get('/user/:id', serverController.getOneUser);
-	app.post('/event/', serverController.addEvent);
-	app.post('/doneevent', serverController.doneEvent)
+	app.post('/addProduct', serverController.addProduct);
+	app.get('/bids', serverController.bids);
+	app.post('/product/:id', serverController.addBid);
+	app.post('/endBid', serverController.endBid);
+	app.post('/startBid', serverController.startBid);
+
 
 }

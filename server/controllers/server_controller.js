@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
-var Event = mongoose.model('Event');
+var Product = mongoose.model('Product');
+var Bid = mongoose.model('Bid');
 
 module.exports = {
 	register: function(req, res){
@@ -43,128 +44,169 @@ module.exports = {
 	},
 
 	
-	index: function(req,res){
-		User.findOne({name: req.session.user.name}).populate('events').populate({path:'events', populate:{ path: 'friend'}}).exec(function(err, results){
-			if(err){
-				console.log(err);
+	bids: function(req,res){
+		Product.find({}).populate('bids').populate({path:'bids', populate:{ path: 'user'}}).exec(function(err,data){
+			console.log(data);
+			if(data == null){
+				res.status(400).send("Bids not found");
 			}
 			else{
-			res.json(results);
+				
+				res.json(data);
+
 			}
 		})
 	},
-	getUsers: function(req,res){
-		User.find({}).populate('events').exec(function(err, results){
+	addBid: function(req,res){
+		console.log(req.body);
+		Product.findOne({_id: req.params.id}).exec(function(err, product){
+			console.log("*********** PRODUCT IS " + product);
+			if(err){
+				res.status(400).send(err);
+			}
+			else{
+				var b = new Bid(req.body);
+				if (b.value > product.highestbid) {
+					b.user = req.session.user._id;
+					b.done = false;
+					product.highestbid = req.body.value;
+					b.product = product;
+					b.save(function(err, new_bid){
+						if(err){
+							res.status(400).send("Bid not saved");
+
+						}
+						else{
+							product.bids.push(new_bid);
+							product.save(function(err, updated_product){
+								if(err){
+									res.status(400).send("Product not Updated");
+								}
+								else {
+									User.findOne({_id: req.session.user._id}).exec(function(err,user){
+									if(err){
+										res.status(400).send(err);
+									}
+									else{
+										user.bids.push(new_bid);
+										user.save(function(err, saved_user){
+											if(err){
+												res.status(400).send(err);
+											}
+											else{
+												res.sendStatus(200);
+											}
+										})
+									}
+							})
+
+
+								}
+							})
+							
+						}
+				})
+				}
+				else {
+					res.status(400).send("Your value must be higher than the previous bid and also greater than zero!");
+				}
+			}
+		})
+	},
+	addProduct: function(req,res){
+		console.log("*********** PRODUCTS BEING ADDED");
+		for(var x=0; x<3; x++){
+			var p = new Product({name: "product"+ x});
+			p.save(function(err, products){
+				if(err){
+					console.log(err);
+					res.status(400).send(err);
+				}
+			})
+		}
+	},	
+	endBid: function(req,res){
+		var array = [];
+		
+		Product.find({}).where('done', false).exec(function(err, products){
 			if(err){
 				res.status(400).send(err);
 			}
 			else{
 				
-				res.json(results);
-
-			}
-			
-		})
-	},
-	getEvents: function(req,res){
-		Event.find({user: req.session.user}).exec(function(err,data){
-			if(err){
-				res.status(400).send(err);
-			}
-			else{
-				console.log(data);
-				res.json(data);
-			}
-		})
-	},
-	addEvent: function(req,res){
-
-		User.findOne({_id: req.session.user._id}, function(err,user){
-			console.log(user);
-				if(err){
-					console.log(err);
-					res.status(400).send(err);
-				}
-				else{ 
-					console.log(req.body);
-					var e = new Event(req.body);
-					e.creator = req.session.user._id;
-					e.done = false;
-					console.log(e);
-					e.save(function(err,new_event){
-					if(err){
-						console.log(err);
-						res.status(400).send("Event not added");
-
+					if(products[0].highestbid == 0 || products[1].highestbid == 0 || products[2].highestbid == 0){
+						res.status(400).send("You cannot end the bidding till all the items have bids");
 					}
 					else{
-						user.events.push(new_event);
-						user.save(function(err, updated_user){
+						products[0].done = true;
+						products[1].done = true;
+						products[2].done = true;
+
+						products[0].save(function(err, updated_product){
+							console.log("updated");
 							if(err){
 								res.status(400).send(err);
 							}
-							else {
-								res.sendStatus(200);
+						})
+						products[1].save(function(err, updated_product){
+							console.log("updated");
+							if(err){
+								res.status(400).send(err);
 							}
 						})
-						
+						products[2].save(function(err, updated_product){
+							console.log("updated");
+							if(err){
+								res.status(400).send(err);
+							}
+						})
 					}
-		})
 
-
+				
+				
+					
+			
+				
 				}
 			})
+			
 		},
-	doneEvent: function(req,res){
-		console.log(req);
-		Event.findOne({_id: req.body._id}).exec(function(err,event){
-			if(err){
-				console.log(err);
-				res.status(400).send(err);
-			}
-			else{
-				if(event.done == false) {
-
-
-					event.update({done: true}, function(err, updated_event){
-						if(err){
-							console.log(err);
-							res.status(400).send(err);
-						}
-						else{
-							res.sendStatus(200);
-							return;
-						}
-					})
-					return;
+		startBid: function(req,res){
+			Product.find({}).exec(function(err,products){
+				if(err){
+					res.status(400).send(err);
 				}
 				else{
-					event.update({done: false}, function(err, updated_event){
+					products[0].done = false;
+					products[1].done = false;
+					products[2].done = false;
+					products[0].bids = [];
+					products[1].bids = [];
+					products[2].bids = [];
+					products[0].highestbid = 0;
+					products[1].highestbid = 0;
+					products[2].highestbid = 0;
+					products[0].save(function(err, updated_product){
+						console.log("updated");
 						if(err){
-							console.log(err);
 							res.status(400).send(err);
 						}
-						else{
-							res.sendStatus(200);
-							return;
+					})
+					products[1].save(function(err, updated_product){
+						console.log("updated");
+						if(err){
+							res.status(400).send(err);
 						}
 					})
+					products[2].save(function(err, updated_product){
+						console.log("updated");
+						if(err){
+							res.status(400).send(err);
+						}
+					})					
 				}
-			}
-		})
-	},
-		
+			})
+		}
+	}
 
 		
-	getOneUser: function(req,res){
-		User.findOne({_id: req.params.id}).populate('events').populate({path:'events', populate:{ path: 'friend'}}).exec(function(err,result){
-			console.log(result);
-			if(err){
-				res.status(400).send(err);
-			}
-			else{
-				res.json(result);
-			}
-		})
-	},
-}

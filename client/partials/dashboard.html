@@ -1,30 +1,28 @@
-<h1>Bucket List</h1>
-<a href="#!/dashboard">Home</a>
+<h1>Bid Now!</h1>
 <a href="#!/logout">Logout</a>
 
 <h3> Welcome {{currentuser.name}} !</h3>
+<button ng-click="addProduct()">Add Products</button>
+
+<div ng-repeat="product in products" ng-if="product.done == false">
+	<h2>{{product.name}}</h2>
+	<input type="text" ng-model="newBid.value">
+	<button ng-click="addBid(newBid, product._id)"> Place Bid</button>
+	<h4>Bids</h4>
+	<div ng-repeat="bid in product.bids | filter:search:strict">
+	<tr>
+		<td>{{bid.user.name}}: {{bid.value | currency:"$"}} </td>
+		<td></td>
+		</tr>
+	</div>
+	<label>Search by Name: <input ng-model="search.user.name"></label>
+	<label>Search by Bid: <input ng-model="search.value"></label>
+</div>
+	
+<button ng-click="endBid()">End Bidding</button>
 
 
-<input type="text" ng-model="newEvent.title" placeholder="Title">
-<input type="text" ng-model="newEvent.description" placeholder="Description">
-
-<select ng-model="newEvent.friend">
-	<option ng-repeat="user in allusers" ng-value="user._id">{{user.name}}</option>
-</select>
-<button ng-click="addEvent(newEvent)">Add to List</button>
 
 
-<h4>Before i die i want to:</h4>
 
-<table>
-	<tr ng-repeat="event in nowuser.events">
-		<td><input type="checkbox" ng-click='doneEvent(event)' ng-checked="event.done"> | {{event.friend.name}} | {{event.title}} | {{event.description}} | <p ng-bind="event.createdAt | date: 'MMMM dd, yyyy'"></p></td>
 
-	</tr>
-</table>
-<h4> List of other users (Click to view Profile):s
-<table>
-	<tr ng-repeat="user in allusers">
-	<td><a href="#!/user/{{user._id}}">{{user.name}}</td></a>
-	</tr>
-	</td>

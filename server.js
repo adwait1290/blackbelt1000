@@ -28,6 +28,6 @@ app.use(express.static(path.join(__dirname, 'bower_components')));
 require('./server/config/mongoose.js');
 require('./server/config/routes.js')(app);
 
-app.listen(6789, function(){
+app.listen(8000, function(){
 	console.log("Server is up and running")
 })

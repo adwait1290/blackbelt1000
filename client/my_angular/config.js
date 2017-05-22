@@ -6,13 +6,13 @@ app.config(function($routeProvider){
 			templateUrl: 'partials/login.html',
 			controller: 'LoginController'
 		})
-		.when('/dashboard', {
+		.when('/bids', {
 			templateUrl: 'partials/dashboard.html', 
 			controller: 'indexController'
 		})
-		.when('/user/:_id', {
-			templateUrl: "partials/user.html",
-			controller: "userController"
+		.when('/result', {
+			templateUrl: 'partials/result.html',
+			controller: 'resultController'
 		})
 		.otherwise({
 			redirectTo: '/'

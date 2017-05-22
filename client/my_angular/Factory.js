@@ -7,7 +7,7 @@ app.factory('Factory', ['$location', '$http', function($location, $http){
 			data: user
 		}).then(function(res){
 			console.log(res);
-			$location.url('/dashboard');
+			$location.url('/bids');
 		}, function(res){
 			console.log(res);
 		})
@@ -30,7 +30,7 @@ app.factory('Factory', ['$location', '$http', function($location, $http){
 			method: 'POST',
 			data: user
 		}).then(function(res){
-			$location.url('/dashboard');
+			$location.url('/bids');
 		}, function(res){
 			console.log(res);
 		})
@@ -44,58 +44,59 @@ app.factory('Factory', ['$location', '$http', function($location, $http){
 		}, function(err){
 			console.log(err);
 		})
-	},
-	factory.index = function(callback){
+	};
+	factory.getProducts = function(callback){
 		$http({
-			url:'/getOne',
-			method: "GET"
+			url:'/bids',
+			method:"GET"
+		}).then(function(res){
+			console.log(res.data);
+			callback(res.data);
+		}, function(err){
+			console.log(err);
+		})
+	};
+	factory.addBid = function(bid, id, callback){
+		$http({
+			url:'/product/' + id,
+			method:"POST",
+			data: bid
+		}).then(function(res){
+			callback(res.data);
+		}, function(err){
+			alert(err.data);
+		})
+	};
+	factory.addProducts = function(callback){
+		console.log("FACTORY INITIATED");
+		$http({
+			url:"/addProduct",
+			method:"POST"
 		}).then(function(res){
 			callback(res.data);
 		}, function(err){
 			console.log(err);
 		})
-	},
-	factory.getEvents = function(callback){
+	};
+	factory.endBid = function(callback){
 		$http({
-			url: "/events",
-			method: "GET"
+			url:'/endBid',
+			method:"POST"
 		}).then(function(res){
-			callback()
+			callback();
 		}, function(err){
-			console.log(err);
+			alert(err.data);
 		})
-	},
-	factory.getOneUser = function(id, callback){
+	};
+	factory.startBid = function(callback){
 		$http({
-			url: "/user/" + id,
-			method: "GET"
-		}).then(function(res){
-			callback(res.data);
-		}, function(err){
-			console.log(err);
-		})
-	},
-	factory.addEvent = function(event,callback){
-		$http({
-			url: "/event/",
-			method: "POST",
-			data: event
+			url: '/startBid',
+			method: "POST"
 		}).then(function(res){
 			callback(res.data);
 		}, function(err){
-			console.log(err);
+			console.log(err.data);
 		})
-	},
-	factory.doneEvent = function(event_id, callback){
-		$http({
-			url: "/doneevent/",
-			method: "POST",
-			data: event_id
-		}).then(function(res){
-			callback(res.data);
-		}, function(err){
-			console.log(err);
-		})
-	}
+	};
 	return factory;
 }])

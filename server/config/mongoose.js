@@ -4,7 +4,7 @@ var fs = require('fs');
 
 mongoose.Promise = global.Promise;
 
-mongoose.connect('mongodb://localhost/blackbelt');
+mongoose.connect('mongodb://localhost/blackbelt1000');
 
 var models_path = path.join(__dirname, '../models/');
 

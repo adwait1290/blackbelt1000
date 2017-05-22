@@ -1,37 +1,31 @@
-app.controller('indexController', ['$scope', '$location', 'Factory', function($scope, $location, Factory){
+app.controller('indexController', ['$scope', '$location', 'Factory', '$routeParams', function($scope, $location, Factory, $routeParams,){
 	function currentUser(){
 		Factory.currentUser(function(data){
 			$scope.currentuser = data;
-		});
-	}
-	function getEvents(){
-		Factory.index(function(data){
-			$scope.events = data;
 		})
 	}
-	function getUsers(){
-		Factory.getUsers(function(data){
-			$scope.allusers = data;
+	function getProducts(){
+		Factory.getProducts(function(data){
+			$scope.products = data;
 		})
 	}
-	function getOne(){
-		Factory.index(function(data){
-			console.log(data);
-			$scope.nowuser = data;
-		})
-	}
+	
+		currentUser();
+		getProducts();
+		$scope.addBid = function(bid, id){
+			Factory.addBid(bid, id, getProducts);
+			$scope.newBid = {};
+			$location.url('/bids');
+		}
+		$scope.addProduct = function(){
+			console.log("CONTROLLER INITIATED");
+			Factory.addProducts(getProducts);
+			$location.url('/bids');
+		}
+		$scope.endBid = function(){
+			Factory.endBid();
+			$location.url('/result');
+		}
 
-	getEvents();
-	currentUser();
-	getUsers();
-	getOne();
-		$scope.addEvent = function(event){
-			Factory.addEvent(event, getEvents);
-			$scope.newEvent = {};
-			$location.url('/dashboard');
-		}
-		$scope.doneEvent = function(id){
-			Factory.doneEvent(id, getEvents);
-		}
 
 	}]);

@@ -1,0 +1,17 @@
+<h1>Bid Now!</h1>
+<a href="#!/logout">Logout</a>
+
+<h3> {{currentuser.name}}  ended the Bid!</h3>
+
+<h4> Highest Bidder per Product</h4>
+
+<div ng-repeat="product in products">
+
+	{{product.name}} |  | 
+	{{product.bids[product.bids.length-1].user.name | currency:"$"}} 
+	{{product.bids[product.bids.length-1].value}}
+
+</div>
+
+
+<button ng-click="startBid()">Start Bid</button>

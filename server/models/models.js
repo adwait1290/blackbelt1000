@@ -4,20 +4,26 @@ var Schema = mongoose.Schema
 
 var UserSchema = new mongoose.Schema({
 	name: {type:String, required: true, unique: true},
-	events: [{type:Schema.Types.ObjectId, ref: "Event"}]
+	bids: [{type:Schema.Types.ObjectId, ref: "Bid"}]
+
 	}, {timestamps: true})
 
 
 mongoose.model('User', UserSchema);
 
-var EventSchema = new mongoose.Schema({
-	title: {type:String, required: true, min:[5, "Your title must be 5 characters!"]},
-	description: {type:String, required: true, min:[10, "Your title must be 10 characters!"]},
-	creator: {type:Schema.Types.ObjectId, ref: "User"},
-	friend: {type:Schema.Types.ObjectId, ref: "User"},
-	done: {type:Boolean, default: false}
-}, {timestamps: true})
+var ProductSchema = new mongoose.Schema({
+	name: {type:String,required:true},
+	bids: [{type:Schema.Types.ObjectId, ref:"Bid"}],
+	highestbid:{type:Number, default:0},
+	done:{type:Boolean, default:false}
 
+}, {timestamps:true})
+mongoose.model("Product", ProductSchema);
 
+var BidSchema = new mongoose.Schema({
+	value: {type:Number, required:true, min:[1, "You must atleast bet a dollar broskis"] },
+	product:{type:Schema.Types.ObjectId, ref: "Product"},
+	user:{type:Schema.Types.ObjectId, ref: "User"}
+}, {timestamps:true})
 
-mongoose.model("Event", EventSchema);
+mongoose.model("Bid", BidSchema);
